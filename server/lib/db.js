@@ -1,25 +1,25 @@
 import mongoose from "mongoose";
 
-// Function to connect to the mongodb database
+let cached = global.mongoose || { conn: null, promise: null };
+
 export const connectDB = async () => {
-    try {
-        mongoose.connection.on('connected', () => {
-            console.log('MongoDB connected');
-        });
-
-        mongoose.connection.on('error', (err) => {
-            console.error('MongoDB connection error:', err.message || err);
-        });
-
-        const uri = process.env.MONGODB_URI;
-        if (!uri) {
-            throw new Error('MONGODB_URI is not set in environment');
-        }
-
-        await mongoose.connect(uri, {
-            dbName: 'ChatApp',
-        });
-    } catch (error) {
-        console.log(error);
+    if (cached.conn) {
+        return cached.conn;
     }
-}
+
+    if (!cached.promise) {
+        const uri = process.env.MONGODB_URI;
+
+        cached.promise = mongoose.connect(uri, {
+            dbName: "ChatApp",
+        }).then((mongoose) => {
+            console.log("MongoDB connected");
+            return mongoose;
+        });
+    }
+
+    cached.conn = await cached.promise;
+    return cached.conn;
+};
+
+global.mongoose = cached;

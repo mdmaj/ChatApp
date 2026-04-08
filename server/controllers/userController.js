@@ -2,10 +2,11 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/User.js";
 import bcrypt from 'bcryptjs';
 import cloudinary from "../lib/cloudinary.js";
-
+import { connectDB } from '../lib/db.js';
 
 // SignUp a new User
 export const signUp = async (req,res)=>{
+    await connectDB(); // VERY IMPORTANT
     const {fullName, email, password, bio} = req.body;
 
     try {
@@ -51,6 +52,7 @@ export const signUp = async (req,res)=>{
 
 // Controller to login a user
 export const login =  async (req,res)=>{
+    await connectDB(); // VERY IMPORTANT
     try {
         const {email, password} = req.body;
         console.log('Login attempt for:', email);
@@ -89,7 +91,8 @@ export const login =  async (req,res)=>{
 }
 
 // Controller to check if user is authenticated
-export const checkAuth =(req,res)=>{
+export const checkAuth =async(req,res)=>{
+    await connectDB(); // VERY IMPORTANT
     res.json({
         success:true,
         user:req.user
@@ -99,6 +102,7 @@ export const checkAuth =(req,res)=>{
 
 // controller to update user profile details
 export const updateProfile= async (req,res)=>{
+    await connectDB(); // VERY IMPORTANT
     try {
         const {profilePic, bio, fullName} = req.body;
         const userId = req.user._id;
